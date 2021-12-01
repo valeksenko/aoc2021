@@ -38,13 +38,11 @@ defmodule AoC2021.Day01.Part2 do
 
   @impl AoC2021.Day
   def run(data) do
-    report =
       data
       |> Enum.map(&String.to_integer/1)
       |> Enum.chunk_every(3, 1, :discard)
-
-    report
-    |> Enum.zip(tl(report))
-    |> Enum.count(fn {n1, n2} -> Enum.sum(n2) - Enum.sum(n1) > 0 end)
+      |> Enum.map(&Enum.sum/1)
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.count(fn [n1, n2] -> n2 - n1 > 0 end)
   end
 end
