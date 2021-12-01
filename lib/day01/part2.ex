@@ -43,6 +43,6 @@ defmodule AoC2021.Day01.Part2 do
       |> Enum.chunk_every(3, 1, :discard)
       |> Enum.map(&Enum.sum/1)
       |> Enum.chunk_every(2, 1, :discard)
-      |> Enum.count(fn [n1, n2] -> n2 - n1 > 0 end)
+      |> Enum.count(fn [n1, n2] -> n2 > n1 end)
   end
 end

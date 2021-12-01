@@ -43,6 +43,6 @@ defmodule AoC2021.Day01.Part1 do
     data
     |> Enum.map(&String.to_integer/1)
     |> Enum.chunk_every(2, 1, :discard)
-    |> Enum.count(fn [n1, n2] -> n2 - n1 > 0 end)
+    |> Enum.count(fn [n1, n2] -> n2 > n1 end)
   end
 end
