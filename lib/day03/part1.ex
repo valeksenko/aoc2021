@@ -54,7 +54,7 @@ defmodule AoC2021.Day03.Part1 do
     |> Tuple.to_list()
     |> Enum.frequencies()
     |> Map.to_list()
-    |> Enum.max_by(fn {v, c} -> c end)
+    |> Enum.max_by(fn {_, c} -> c end)
     |> elem(0)
   end
 
