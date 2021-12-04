@@ -47,7 +47,7 @@ defmodule AoC2021.Day04.Part1 do
 
   defp board_match?(board, matches) do
     board
-    |> Enum.any?(fn row -> Enum.all?(row, &Enum.member?(matches, &1)) end)
+    |> Enum.any?(&Enum.empty?(&1 -- matches))
   end
 
   defp transpose(rows) do
