@@ -43,7 +43,7 @@ defmodule AoC2021.Day03.Part2 do
   def run(data) do
     data
     |> Enum.map(&String.graphemes/1)
-    |> matches
+    |> matches()
     |> Enum.map(&String.to_integer(&1, 2))
     |> Enum.product()
   end
