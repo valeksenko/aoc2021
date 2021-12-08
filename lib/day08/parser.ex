@@ -29,5 +29,5 @@ defmodule AoC2021.Day08.Parser do
   end
 
   defp to_note({:ok, [signal: signal, output: output], "", _, _, _}),
-    do: {signal, output}
+    do: {signal |> Enum.map(&String.to_charlist/1), output |> Enum.map(&String.to_charlist/1)}
 end

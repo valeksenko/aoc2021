@@ -58,7 +58,7 @@ defmodule AoC2021.Day08.Part1 do
   @impl AoC2021.Day
   def run(data) do
     note_parser(data)
-    |> Enum.map(fn {_, o} -> Enum.count(o, &(String.length(&1) in @counts)) end)
+    |> Enum.map(fn {_, o} -> Enum.count(o, &(length(&1) in @counts)) end)
     |> Enum.sum()
   end
 end
