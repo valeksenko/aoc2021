@@ -26,12 +26,12 @@ defmodule AoC2021.Day09.Part1 do
     |> to_heightmap
     |> low_points
     |> Enum.map(&(&1 + 1))
-    |> Enum.sum
+    |> Enum.sum()
   end
 
   defp low_points(heightmap) do
     heightmap
-    |> Enum.filter(&(low_point(&1, heightmap)))
+    |> Enum.filter(&low_point(&1, heightmap))
     |> Enum.map(&elem(&1, 1))
   end
 
@@ -40,13 +40,13 @@ defmodule AoC2021.Day09.Part1 do
       neighbors()
       |> Enum.map(fn {xd, yd} -> Map.get(heightmap, {x + xd, y + yd}) end)
       |> Enum.reject(&is_nil/1)
-      |> Enum.min
+      |> Enum.min()
 
     height < min
   end
 
   defp neighbors do
-    for xd <- -1..1, yd <- -1..1, {xd, yd} != {0, 0}, do: {xd, yd}
+    [{0, 1}, {0, -1}, {1, 0}, {-1, 0}]
   end
 
   defp to_heightmap(data) do
