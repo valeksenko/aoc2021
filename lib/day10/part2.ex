@@ -71,10 +71,7 @@ defmodule AoC2021.Day10.Part2 do
   end
 
   defp illegal?(line) do
-    case line |> Enum.reduce_while([], &process/2) do
-      :illegal -> true
-      _ -> false
-    end
+    Enum.reduce_while(line, [], &process/2) == :illegal
   end
 
   defp process(c, [o | stack]) when c in @closing do
