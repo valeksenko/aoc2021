@@ -38,14 +38,14 @@ defmodule AoC2021.Day11.Part2 do
   end
 
   defp flash({flashed, map}) do
-    fresh = fleshes(map) -- flashed
+    fresh = flashes(map) -- flashed
 
     if Enum.empty?(fresh),
       do: map,
       else: {fresh ++ flashed, fresh |> Enum.reduce(map, &shine/2)} |> flash
   end
 
-  defp fleshes(map) do
+  defp flashes(map) do
     map
     |> Enum.filter(fn {_, level} -> level > 9 end)
     |> Enum.map(&elem(&1, 0))
