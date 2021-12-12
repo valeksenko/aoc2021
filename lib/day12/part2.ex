@@ -20,11 +20,11 @@ defmodule AoC2021.Day12.Part2 do
   end
 
   defp visit_caves(caves) do
-    visit_cave("start", caves, [[]])
+    visit_cave("start", caves, [])
     |> Enum.filter(&(hd(&1) == @finish))
   end
 
-  defp visit_cave(@finish, _, visited), do: mark_visit(@finish, visited)
+  defp visit_cave(@finish, _, visited), do: [mark_visit(@finish, visited)]
 
   defp visit_cave(current, caves, visited) do
     caves
@@ -33,7 +33,7 @@ defmodule AoC2021.Day12.Part2 do
     |> visit(caves, mark_visit(current, visited))
   end
 
-  def visit([], _, visited), do: visited
+  def visit([], _, visited), do: [visited]
 
   def visit(new, caves, visited) do
     new
@@ -41,13 +41,12 @@ defmodule AoC2021.Day12.Part2 do
   end
 
   def mark_visit(cave, visited) do
-    visited
-    |> Enum.map(&[cave | &1])
+    [cave | visited]
   end
 
   def visit?(cave, current, visited) do
     big?(cave) ||
-      !(cave in List.flatten(visited)) ||
+      !(cave in visited) ||
       (!(cave in @singles) && !doubles?(mark_visit(current, visited)))
   end
 
@@ -56,9 +55,8 @@ defmodule AoC2021.Day12.Part2 do
   end
 
   defp doubles?(visited) do
-    visited
-    |> Enum.map(fn c -> Enum.reject(c, &big?/1) end)
-    |> Enum.any?(fn c -> length(c) != length(Enum.uniq(c)) end)
+    smalls = Enum.reject(visited, &big?/1)
+    length(smalls) != smalls |> Enum.uniq() |> length
   end
 
   defp to_caves(data) do

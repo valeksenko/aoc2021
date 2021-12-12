@@ -28,11 +28,11 @@ defmodule AoC2021.Day12.Part1 do
   end
 
   defp visit_caves(caves) do
-    visit_cave("start", caves, [[]])
+    visit_cave("start", caves, [])
     |> Enum.filter(&(hd(&1) == @finish))
   end
 
-  defp visit_cave(@finish, _, visited), do: mark_visit(@finish, visited)
+  defp visit_cave(@finish, _, visited), do: [mark_visit(@finish, visited)]
 
   defp visit_cave(current, caves, visited) do
     caves
@@ -41,7 +41,7 @@ defmodule AoC2021.Day12.Part1 do
     |> visit(caves, mark_visit(current, visited))
   end
 
-  def visit([], _, visited), do: visited
+  def visit([], _, visited), do: [visited]
 
   def visit(new, caves, visited) do
     new
@@ -49,12 +49,11 @@ defmodule AoC2021.Day12.Part1 do
   end
 
   def mark_visit(cave, visited) do
-    visited
-    |> Enum.map(&[cave | &1])
+    [cave | visited]
   end
 
   def visit?(cave, visited) do
-    String.match?(cave, ~r/[A-Z]+/) || !(cave in List.flatten(visited))
+    String.match?(cave, ~r/[A-Z]+/) || !(cave in visited)
   end
 
   defp to_caves(data) do
