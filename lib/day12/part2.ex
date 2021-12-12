@@ -48,17 +48,17 @@ defmodule AoC2021.Day12.Part2 do
   def visit?(cave, current, visited) do
     big?(cave) ||
       !(cave in List.flatten(visited)) ||
-      (!(cave in @singles) && !doubles?(current, visited))
+      (!(cave in @singles) && !doubles?(mark_visit(current, visited)))
   end
 
   defp big?(cave) do
     String.match?(cave, ~r/[A-Z]+/)
   end
 
-  defp doubles?(cave, visited) do
+  defp doubles?(visited) do
     visited
     |> Enum.map(fn c -> Enum.reject(c, &big?/1) end)
-    |> Enum.any?(fn c -> length([cave | c]) != length(Enum.uniq([cave | c])) end)
+    |> Enum.any?(fn c -> length(c) != length(Enum.uniq(c)) end)
   end
 
   defp to_caves(data) do
