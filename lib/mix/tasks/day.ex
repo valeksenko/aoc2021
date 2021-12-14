@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Day do
   use Mix.Task
 
   @notrim ~w[]
-  @nosplit ~w[4 13]
+  @nosplit ~w[4 13 14]
 
   @shortdoc "Run a spefic day with its input"
 
