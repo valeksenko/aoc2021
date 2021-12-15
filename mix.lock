@@ -1,3 +1,4 @@
 %{
+  "eastar": {:hex, :eastar, "0.5.1", "5d610705db8e7e9287e02bf1b1ee7013c2744e04380acf914590749dbcb3e8d5", [:mix], [], "hexpm", "1f44f293ffd78fae7692786d3ff64bcc140cfe0efae29b13fd6b6f673d50a558"},
   "nimble_parsec": {:hex, :nimble_parsec, "1.2.0", "b44d75e2a6542dcb6acf5d71c32c74ca88960421b6874777f79153bbbbd7dccc", [:mix], [], "hexpm", "52b2871a7515a5ac49b00f214e4165a40724cf99798d8e4a65e4fd64ebd002c1"},
 }
