@@ -32,32 +32,39 @@ defmodule AoC2021.Day17.Part1 do
   @impl AoC2021.Day
   def run(data) do
     {x_target, y_target} = data |> hd |> parse_target
-    goal = fn {{x, y}, _} -> x in x_target and y in y_target end
 
-    nbs = fn {pos, vel} ->
-      if pos == {0, 0}, do: velocities(x_target), else: move(pos, vel, x_target, y_target)
-    end
+    velocities(x_target)
+    |> Enum.map(&fire(&1, x_target, y_target))
+    |> Enum.filter(&hit?(&1, x_target, y_target))
+    |> Enum.map(&top/1)
+    |> Enum.max()
+  end
 
-    nb_cost = fn {{_, y1}, _}, {{_, y2}, _} -> if y2 > y1, do: -y2, else: 0 end
-    # we can't estimate, so using it as a Dijkstra's
-    estimated_cost = fn _, _ -> 1 end
+  def fire(velocity, x_target, y_target) do
+    {{0, 0}, velocity}
+    |> Stream.iterate(&move/1)
+    |> Stream.take_while(fn {pos, _} -> !passed?(pos, x_target, y_target) end)
+    |> Enum.to_list()
+  end
 
-    Astar.astar({nbs, nb_cost, estimated_cost}, {{0, 0}, {0, 0}}, goal)
+  def hit?(trajectory, x_target, y_target) do
+    trajectory
+    |> Enum.any?(fn {{x, y}, _} -> x in x_target and y in y_target end)
+  end
+
+  def top(trajectory) do
+    trajectory
     |> Enum.map(fn {{_, y}, _} -> y end)
     |> Enum.max()
   end
 
   defp velocities(_..x_max) do
-    for xv <- 1..x_max, yv <- 0..x_max, do: next({0, 0}, {xv, yv})
+    for xv <- 1..x_max, yv <- 0..x_max, do: {xv, yv}
   end
 
-  defp move(pos, vel, x_target, y_target) do
-    if passed?(pos, x_target, y_target), do: [], else: [next(pos, vel)]
-  end
+  defp passed?({x, y}, _..x_max, y_min.._), do: x > x_max or y < y_min
 
-  defp passed?({x, y}, _..x_max, _..y_min), do: x > x_max or y < y_min
-
-  defp next({x, y}, {xv, yv}), do: {{x + xv, y + yv}, {change(xv), yv - 1}}
+  defp move({{x, y}, {xv, yv}}), do: {{x + xv, y + yv}, {change(xv), yv - 1}}
 
   defp change(n), do: if(n > 0, do: n - 1, else: 0)
 end
