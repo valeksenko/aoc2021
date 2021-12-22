@@ -24,7 +24,8 @@ defmodule AoC2021.Day21.Part2 do
     |> elem(0)
   end
 
-  defp play({game, count1, count2}, cache) when :erlang.is_map_key(game, cache), do: {cached(cache[game], count1, count2), cache}
+  defp play({game, count1, count2}, cache) when :erlang.is_map_key(game, cache),
+    do: {cached(cache[game], count1, count2), cache}
 
   defp play({game = {player1, player2}, count1, count2}, cache) do
     {wins, ongoing1} = turn(player1) |> Enum.split_with(&win?/1)
@@ -46,10 +47,13 @@ defmodule AoC2021.Day21.Part2 do
 
   defp play_all(games1, games2, count1, count2, cache) do
     for(player1 <- games1, player2 <- games2, do: {player1, player2})
-    |> Enum.reduce({{0, 1}, cache}, fn players, {t, c} -> {players, count1, count2} |> play(c) |> merge_games(t, c) end)
+    |> Enum.reduce({{0, 1}, cache}, fn players, {t, c} ->
+      {players, count1, count2} |> play(c) |> merge_games(t, c)
+    end)
   end
 
-  defp merge_games({{c1, c2}, cache1}, {t1, t2}, cache2), do: {{c1 + t1, c2 + t2}, Map.merge(cache1, cache2)}
+  defp merge_games({{c1, c2}, cache1}, {t1, t2}, cache2),
+    do: {{c1 + t1, c2 + t2}, Map.merge(cache1, cache2)}
 
   defp win?({score, _}), do: score >= @win
 
