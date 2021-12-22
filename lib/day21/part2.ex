@@ -20,30 +20,36 @@ defmodule AoC2021.Day21.Part2 do
   def run(data) do
     data
     |> to_game
-    |> play
+    |> play(%{})
+    |> elem(0)
   end
 
-  defp play({{player1, player2}, count1, count2}) do
+  defp play({game, count1, count2}, cache) when :erlang.is_map_key(game, cache), do: {cached(cache[game], count1, count2), cache}
+
+  defp play({game = {player1, player2}, count1, count2}, cache) do
     {wins, ongoing1} = turn(player1) |> Enum.split_with(&win?/1)
     count1 = count1 + length(wins)
 
     if Enum.empty?(ongoing1) do
-      {count1, count2}
+      {{count1, count2}, Map.put(cache, game, {count1, count2})}
     else
       {wins, ongoing2} = turn(player2) |> Enum.split_with(&win?/1)
       count2 = count2 + length(wins)
 
       if Enum.empty?(ongoing2),
-        do: {count1, count2},
-        else: play_all(ongoing1, ongoing2, count1, count2)
+        do: {{count1, count2}, Map.put(cache, game, {count1, count2})},
+        else: play_all(ongoing1, ongoing2, count1, count2, cache)
     end
   end
 
-  defp play_all(games1, games2, count1, count2) do
+  defp cached({cached1, cached2}, count1, count2), do: {cached1 + count1, cached2 + count2}
+
+  defp play_all(games1, games2, count1, count2, cache) do
     for(player1 <- games1, player2 <- games2, do: {player1, player2})
-    |> Enum.map(&play({&1, count1, count2}))
-    |> Enum.reduce(fn {c1, c2}, {t1, t2} -> {c1 + t1, c2 + t2} end)
+    |> Enum.reduce({{0, 1}, cache}, fn players, {t, c} -> {players, count1, count2} |> play(c) |> merge_games(t, c) end)
   end
+
+  defp merge_games({{c1, c2}, cache1}, {t1, t2}, cache2), do: {{c1 + t1, c2 + t2}, Map.merge(cache1, cache2)}
 
   defp win?({score, _}), do: score >= @win
 
