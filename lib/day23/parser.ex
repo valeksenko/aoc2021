@@ -15,7 +15,6 @@ defmodule AoC2021.Day23.Parser do
     |> wrap
     |> ignore(new_line)
 
-
   diagram =
     ignore(repeat(wall))
     |> ignore(new_line)
@@ -35,5 +34,5 @@ defmodule AoC2021.Day23.Parser do
     |> to_rooms
   end
 
-  defp to_rooms({:ok, levels, "", _, _, _}), do: levels |> Enum.zip
+  defp to_rooms({:ok, levels, "", _, _, _}), do: levels |> Enum.zip()
 end

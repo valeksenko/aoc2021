@@ -44,7 +44,7 @@ defmodule AoC2021.Day23.Part1 do
     parse_diagram(data)
     |> to_diagram
     |> min_energy(0, [])
-    |> Enum.min
+    |> Enum.min()
   end
 
   defp min_energy(diagram, energy, moved) do
@@ -52,6 +52,7 @@ defmodule AoC2021.Day23.Part1 do
       [energy]
     else
       moved = [diagram | moved]
+
       diagram
       |> Enum.filter(&available?(diagram, &1))
       |> Enum.flat_map(&moves(diagram, &1))
@@ -62,26 +63,30 @@ defmodule AoC2021.Day23.Part1 do
 
   defp available?(_, {_, :free}), do: false
   defp available?(_, {{_, @hall}, _}), do: true
-  defp available?(diagram, {{x, @top}, val}), do: (x != @rooms[val]) or (diagram[{x, @bottom}] != val)
-  defp available?(diagram, {{x, @bottom}, val}), do: (x != @rooms[val]) && (diagram[{x, @top}] == :free)
+  defp available?(diagram, {{x, @top}, val}), do: x != @rooms[val] or diagram[{x, @bottom}] != val
+
+  defp available?(diagram, {{x, @bottom}, val}),
+    do: x != @rooms[val] && diagram[{x, @top}] == :free
 
   defp moves(diagram, {pos = {x, y}, type}) do
     room = @rooms[type]
 
     cond do
-      (y == @hall) && (diagram[{room, @bottom}] == :free) -> [move(diagram, pos, {room, @bottom})]
-      (y == @hall) && (diagram[{room, @top}] == :free) -> [move(diagram, pos, {room, @top})]
+      y == @hall && diagram[{room, @bottom}] == :free -> [move(diagram, pos, {room, @bottom})]
+      y == @hall && diagram[{room, @top}] == :free -> [move(diagram, pos, {room, @top})]
       y == @hall -> []
       true -> hall_moves(diagram, pos)
     end
   end
 
   defp move(diagram, source, dest) do
-    {diagram |> Map.put(dest, diagram[source]) |> Map.put(source, :free), energy(diagram, source, dest)}
+    {diagram |> Map.put(dest, diagram[source]) |> Map.put(source, :free),
+     energy(diagram, source, dest)}
   end
 
   defp hall_moves(diagram, pos) do
-    (free_halls(diagram, pos, fn {{x, _}, _} -> x end) ++ free_halls(diagram, pos, fn {{x, _}, _} -> -x end))
+    (free_halls(diagram, pos, fn {{x, _}, _} -> x end) ++
+       free_halls(diagram, pos, fn {{x, _}, _} -> -x end))
     |> Enum.map(&elem(&1, 0))
     |> Enum.reject(&(elem(&1, 0) in room_indexes()))
     |> Enum.map(&move(diagram, pos, &1))
@@ -89,10 +94,10 @@ defmodule AoC2021.Day23.Part1 do
 
   defp free_halls(diagram, {x, _}, sorter) do
     diagram
-      |> Enum.filter(fn {{_, y1}, _} -> y1 == @hall end)
-      |> Enum.sort_by(sorter)
-      |> Enum.drop_while(fn {{x1, _}, _} -> x1 != x end)
-      |> Enum.take_while(fn {{_, _}, val} -> (val == :free) end)
+    |> Enum.filter(fn {{_, y1}, _} -> y1 == @hall end)
+    |> Enum.sort_by(sorter)
+    |> Enum.drop_while(fn {{x1, _}, _} -> x1 != x end)
+    |> Enum.take_while(fn {{_, _}, val} -> val == :free end)
   end
 
   defp energy(diagram, pos1, pos2) do
@@ -104,7 +109,7 @@ defmodule AoC2021.Day23.Part1 do
   end
 
   defp rooms_filled?(diagram) do
-    (for x <- room_indexes(), y <- [@top, @bottom], do: {x, y})
+    for(x <- room_indexes(), y <- [@top, @bottom], do: {x, y})
     |> Enum.all?(fn {x, y} -> @rooms[diagram[{x, y}]] == x end)
   end
 
@@ -117,13 +122,15 @@ defmodule AoC2021.Day23.Part1 do
     indexes = room_indexes()
 
     rooms
-    |> Enum.with_index
-    |> Enum.reduce(diagram, fn {{a1, a2}, i}, d -> d |> Map.put({Enum.at(indexes, i), @top}, a1) |> Map.put({Enum.at(indexes, i), @bottom}, a2) end)
+    |> Enum.with_index()
+    |> Enum.reduce(diagram, fn {{a1, a2}, i}, d ->
+      d |> Map.put({Enum.at(indexes, i), @top}, a1) |> Map.put({Enum.at(indexes, i), @bottom}, a2)
+    end)
   end
 
   defp room_indexes do
     @rooms
-    |> Map.values
-    |> Enum.sort
+    |> Map.values()
+    |> Enum.sort()
   end
 end
