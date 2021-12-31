@@ -6,11 +6,12 @@ defmodule AoC2021.Day23.Parser do
   hall = ascii_string([?.], 1)
   amphipod = ascii_string([?A..?D], 1)
 
-  room =
+  rooms =
     ignore(repeat(wall))
-    |> repeat(
+    |> times(
       amphipod
-      |> ignore(repeat(wall))
+      |> ignore(repeat(wall)),
+      4
     )
     |> wrap
     |> ignore(new_line)
@@ -22,9 +23,9 @@ defmodule AoC2021.Day23.Parser do
     |> ignore(repeat(hall))
     |> ignore(repeat(wall))
     |> ignore(new_line)
-    |> repeat(room)
+    |> times(rooms, 2)
     |> ignore(repeat(wall))
-    |> eos()
+    |> ignore(repeat(new_line))
 
   defparsec(:parse, diagram)
 

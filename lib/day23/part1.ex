@@ -43,21 +43,27 @@ defmodule AoC2021.Day23.Part1 do
   def run(data) do
     parse_diagram(data)
     |> to_diagram
-    |> min_energy(0, [])
-    |> Enum.min()
+    |> min_energy(0, :none, [])
   end
 
-  defp min_energy(diagram, energy, moved) do
-    if rooms_filled?(diagram) do
-      [energy]
-    else
-      moved = [diagram | moved]
+  defp min_energy(diagram, energy, calculated, moved) do
+    cond do
+      calculated != :none and energy >= calculated ->
+        calculated
 
-      diagram
-      |> Enum.filter(&available?(diagram, &1))
-      |> Enum.flat_map(&moves(diagram, &1))
-      |> Enum.reject(fn {d, _} -> d in moved end)
-      |> Enum.flat_map(fn {d, e} -> min_energy(d, energy + e, moved) end)
+      rooms_filled?(diagram) ->
+        energy
+
+      true ->
+        diagram
+        |> Enum.filter(&available?(diagram, &1))
+        |> Enum.flat_map(&moves(diagram, &1))
+        |> Enum.reject(fn {d, _} -> d in moved end)
+        |> Enum.sort_by(&elem(&1, 1))
+        # |> Enum.map(&inspect_diagram/1)
+        |> Enum.reduce(calculated, fn {d, e}, c ->
+          min_energy(d, energy + e, c, [diagram | moved])
+        end)
     end
   end
 
@@ -68,20 +74,41 @@ defmodule AoC2021.Day23.Part1 do
   defp available?(diagram, {{x, @bottom}, val}),
     do: x != @rooms[val] && diagram[{x, @top}] == :free
 
-  defp moves(diagram, {pos = {x, y}, type}) do
+  defp moves(diagram, {pos = {_, y}, type}) do
     room = @rooms[type]
 
     cond do
-      y == @hall && diagram[{room, @bottom}] == :free -> [move(diagram, pos, {room, @bottom})]
-      y == @hall && diagram[{room, @top}] == :free -> [move(diagram, pos, {room, @top})]
-      y == @hall -> []
-      true -> hall_moves(diagram, pos)
+      diagram[{room, @bottom}] == :free and free_path?(diagram, pos, room) ->
+        [move(diagram, pos, {room, @bottom})]
+
+      diagram[{room, @bottom}] == type and free_path?(diagram, pos, room) ->
+        [move(diagram, pos, {room, @top})]
+
+      y == @hall ->
+        []
+
+      true ->
+        hall_moves(diagram, pos)
     end
   end
 
   defp move(diagram, source, dest) do
     {diagram |> Map.put(dest, diagram[source]) |> Map.put(source, :free),
      energy(diagram, source, dest)}
+  end
+
+  defp free_path?(diagram, {xs, ys}, xd) do
+    diagram[{xd, @top}] == :free and
+      free_room_exit?(diagram, xs, ys) and
+      xs..xd |> Enum.drop(1) |> Enum.all?(fn x -> diagram[{x, @hall}] == :free end)
+  end
+
+  defp free_room_exit?(diagram, x, y) do
+    case y do
+      @hall -> true
+      @top -> true
+      @bottom -> diagram[{x, @top}] == :free
+    end
   end
 
   defp hall_moves(diagram, pos) do
@@ -105,13 +132,32 @@ defmodule AoC2021.Day23.Part1 do
   end
 
   defp distance({x1, y1}, {x2, y2}) do
-    abs(x1 + x2) + abs(y1 + y2)
+    abs(x1 - x2) + y1 + y2
   end
 
   defp rooms_filled?(diagram) do
     for(x <- room_indexes(), y <- [@top, @bottom], do: {x, y})
     |> Enum.all?(fn {x, y} -> @rooms[diagram[{x, y}]] == x end)
   end
+
+  defp inspect_diagram({diagram, energy}) do
+    IO.inspect({:energy, energy})
+    for x <- 0..(@hall_size - 1), do: IO.binwrite(inspect_cell(diagram[{x, @hall}]))
+
+    for y <- [@top, @bottom] do
+      IO.binwrite("\n  ")
+
+      for x <- Map.values(@rooms) do
+        IO.binwrite(inspect_cell(diagram[{x, y}]))
+        IO.binwrite(" ")
+      end
+    end
+
+    IO.binwrite("\n\n")
+    {diagram, energy}
+  end
+
+  defp inspect_cell(val), do: if(val == :free, do: ".", else: val)
 
   defp to_diagram(rooms) do
     diagram =
